@@ -1,5 +1,6 @@
-www.github.com/githubmave.io/index.html
 
 
+
+https://githubmve.github.io/
 
 my first line in first blog
