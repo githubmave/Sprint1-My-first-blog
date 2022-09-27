@@ -174,8 +174,15 @@ pre code {
 
 
 <h1 class="title toc-ignore">Zero Inflation (Poisson + Logistic) </h1>
-<h4 class="author"></h4>
+<h3>Description:</h3>
+<h3 class="author">
+  bikesharing.csv contains bike sharing history of a particular season and weather information.         
+  
+  </h3>
+  <h3>The interest is predicting the bike
+  sharing count for a given day and weather condition
 
+</h3>
 </div>
 
 
@@ -204,7 +211,10 @@ pre code {
 ##     select</code></pre>
 <div id="question-1" class="section level1">
 <h1>Question 1</h1>
-<p>The data is loaded and a zero-inflated Poisson regression is fitted.</p>
+<p>Find a probability for zero bike sharing on a Monday next week and,
+  the forecast is 12.5C and light rain..
+</p>
+
 <pre class="r"><code>bike = read.csv(file=&#39;bikesharing.csv&#39;,header=TRUE)
 bike$weather_code=as.factor(bike$weather_code)
 zinf1 &lt;- zeroinfl(cnt~t2+weather_code+is_weekend,data=bike,dist=&#39;poisson&#39;)
@@ -234,13 +244,20 @@ dpois(0,predict(zinf1,data.frame(is_weekend=0,weather_code=&quot;7&quot;,t2=12.5
 ## 0.174167</code></pre>
 </div>
 <div id="b" class="section level3">
-<h3>(b)</h3>
+<h3>(b)
+  Find the expected number of bike sharing on a clear Sunday, 11.3C
+
+</h3>
 <pre class="r"><code>predict(zinf1,data.frame(is_weekend=1,weather_code=&quot;1&quot;,t2=11.3),type=&#39;response&#39;)</code></pre>
 <pre><code>##        1 
 ## 4.128706</code></pre>
 </div>
 <div id="c" class="section level3">
-<h3>(c)</h3>
+<h3>(c)
+
+  Describe a day and weather maximizing a probability for zero bike
+sharing
+</h3>
 <p>A probability for zero inflation is characterized from coefficient estimates. A probability for zero inflation increases as a temperature decreases and will reach the max on any coldest snowy weekday. A probability of zero count is a summation of probabilities for zero-inflation and Poisson model at 0 and, the question is whether a probability for zero sharing is dominated by a probability for zero inflation for this data.</p>
 <p>There are two ways in computing a probability for zero count using the prediction-function. For example, we want to get a probability for a clear Sunday, 11.3C.</p>
 <pre class="r"><code>#lambda for a Poisson model
@@ -279,7 +296,10 @@ legend(&#39;topright&#39;,pch=1,legend=code,col=c(1:6))</code></pre>
 <p>For all weather code and at every temperature, a higher probability is observed on weekdays. On snowy weekdays, as a temperature decreases, a probability for zero sharing increases and the max is obtained around -6 in this plot. Note that the max probability value and day description are not required.</p>
 </div>
 <div id="d" class="section level3">
-<h3>(d)</h3>
+<h3>(d)
+
+  Which day and weather do result small bike sharing?
+</h3>
 <pre class="r"><code>t &lt;- seq(from=-6.0,to=15.5,length.out=100)
 x &lt;- matrix(0,6,length(t))
 x.wknd &lt;- matrix(0,6,length(t))
@@ -302,7 +322,13 @@ legend(&#39;topright&#39;,pch=1,legend=code,col=c(1:6))</code></pre>
 <p>Lower temperature on weekends tend to yield less bike sharing. Weather codes are in the order of Snowy day&lt;Rainy day&lt; Cloudy day&lt; Sunny day&lt;Broken clouds&lt; scattered cloudy.</p>
 </div>
 <div id="e" class="section level3">
-<h3>(e)</h3>
+<h3>(e)
+
+
+  The bike sharing app is needed to be updated. Ideal day is any
+  weekday that the probability of zero bike sharing is greater than 0.5.
+  Describe the weather for an ideal day.
+</h3>
 <p>Let’s plot the zero probabilities against temperatures for each weather condition.</p>
 <pre class="r"><code>plot(t,p.zero[1,],type=&#39;l&#39;,ylim=c(min(p.zero),max(p.zero)),ylab=&#39;prob for zero sharing&#39;,xlab=&#39;t2 values&#39;,lty=3);  
 lines(t,p.zero[2,],lty=3,col=2)
@@ -319,23 +345,76 @@ legend(&#39;topright&#39;,pch=1,legend=code,col=c(1:6))</code></pre>
 </div>
 <div id="question-2" class="section level1">
 <h1>Question 2</h1>
+<h3>
+
+  Poor outdoor air quality is a significant issue. Airborne particulate matter
+(PM) is a mixture of many chemical species and well known sources include
+house heating, dust, automobile emission, incomplete combustion etc.
+Those with a diameter of 10 microns or less (PM10) are inhalable into the
+lungs and can induce adverse health effects. PM concentration unit is microgram per cubic metre µg/m3
+. The train data Ashburton.csv contains
+hourly air quality measurements from 01/06/2020 to 01/04/2021 in Ashburton and, we will use this to fit a model. The test data AshburtonTest.csv
+contains measurements from 02/04/2021 to 09/04/2021 and, we will use
+this to validate our model. The eight variables follow;
+</h3>
+
+  <h3>  • Tem6m - Air temperature (Celsius) at 6 meters above the surface.
+  </h3>
+  <h3>• PM10 - PM10 measurement (µg/m3
+  </h3>
+  <h3>• PM2.5 - PM2.5 measurement (µg/m3
+    ).</h3>
+  <h3>• WindSpeed - Wind speed (m/s).
+  </h3>
+  <h3>• Temp2m - Air temperature (Celsius) at 2 meters above the surface.
+  </h3>
+  <h3>• RelativeHumidity - Relative humidity (%).
+  </h3>
+  <h3>• WindDirection - Wind direction (Degree).
+  </h3>
+  <h3>• WindMax - Wind maximum (m/s).
+  </h3>
+
+  <h3>The interest is predicting PM10 measurements given other measurements
+    using a linear regression.
+  <h3>    Data source: https://www.ecan.govt.nz/data/air-quality-data/</h3>
+</h3>
 <pre class="r"><code>air0 &lt;- read.csv(file=&#39;Ashburton.csv&#39;,header=TRUE)
 air0.Test &lt;- read.csv(file=&#39;AshburtonTest.csv&#39;,header=TRUE)</code></pre>
 <div id="a-1" class="section level3">
-<h3>(a)</h3>
+<h3>(a)
+  There are some missing values in the dataset and rows including
+  any missing value should be discarded for the analysis (b-f). In
+  Ashburton.csv, how many rows do contain any missing value? Construct a data air1 containing only non-missing values of Ashburton.csv.
+ 
+</h3>
 <pre class="r"><code>sum(apply(air0,1,function(x) (sum(is.na(x))&gt;0)))</code></pre>
 <pre><code>## [1] 1032</code></pre>
 <pre class="r"><code>air1=air0[which(apply(air0,1,function(x) sum(is.na(x)))==0),]</code></pre>
 <p>1032 rows</p>
 </div>
 <div id="b-1" class="section level3">
-<h3>(b)</h3>
+<h3>(b)
+
+
+  National Environmental Standards for PM10 is 50µg/m3 as a 24-
+  hour average. How many rows in air1 containing PM10 greater
+  than 50µg/m3
+  ?
+</h3>
 <pre class="r"><code>sum(air1$PM10&gt;50)</code></pre>
 <pre><code>## [1] 99</code></pre>
 <p>99 rows</p>
 </div>
 <div id="c-1" class="section level3">
-<h3>(c)</h3>
+<h3>(c)
+
+
+  Fit the best and parsimonious linear regression models using the
+  l1 norm penalty. Present a plot showing the number of non-zero
+  coefficients against λ. Make sure you fix the randomization using
+  set.seed(1234) before fitting a regression.
+</h3>
 <pre class="r"><code>set.seed(1234)
 lasso.fit &lt;- cv.glmnet(as.matrix(air1[,-2]),as.matrix(air1[,2]),alpha=1,standardize=TRUE)
 
@@ -343,7 +422,12 @@ plot(lasso.fit)</code></pre>
 <p><img src="data:image/png;base64,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" width="672" /></p>
 </div>
 <div id="d-1" class="section level3">
-<h3>(d)</h3>
+<h3>(d)
+
+
+  Display coefficients for the best and parsimonious linear models in
+(c).
+</h3>
 <pre class="r"><code>cbind(coef(lasso.fit,s=lasso.fit$lambda.min),coef(lasso.fit,s=lasso.fit$lambda.1se))</code></pre>
 <pre><code>## 8 x 2 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                             1            1
@@ -357,7 +441,14 @@ plot(lasso.fit)</code></pre>
 ## WindMax           0.270156209  0.017486995</code></pre>
 </div>
 <div id="e-1" class="section level3">
-<h3>(e)</h3>
+<h3>(e)
+
+
+  Predict PM10 measurements in the test data (AshburtonTest.csv)
+using the best and parsimonious models and plot predictions along
+actual measurements. You will need to discard any missing value.
+Do the models predict PM10 well in general?
+</h3>
 <p>Sizes for the best and parsimonious models are different and, possible number of predicted values are different.</p>
 <pre class="r"><code>#Let&#39;s find rows without missing values.  
 ii.best = which(apply(air0.Test[,-c(2,4)],1, function(x) sum(is.na(x)))==0)
@@ -375,7 +466,12 @@ plot(air0.Test[ii.best,2],pp1,xlab=&#39;PH10&#39;,ylab=&#39;prediction&#39;,main
 <p>As it is seen in the figures, both models poorly predict high PM10 values.</p>
 </div>
 <div id="f" class="section level3">
-<h3>(f)</h3>
+<h3>(f)
+
+
+  Which variable is the most important one in predicting PM10? Verity
+  your answer.
+</h3>
 <p>In a linear regression, important predictors are linear with the response variable. Among available predictors, PM2.5 is the most important one because of linearity to PM10 (a scatter plot or correlation will be enough for evidence). Higher coefficients can’t be the reason because of different ranges of predictors.</p>
 <pre class="r"><code>#correlations as evidence
 apply(air1[,-2],2,function(x) cor(x,air1[,2]))</code></pre>
